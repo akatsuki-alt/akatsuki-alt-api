@@ -37,4 +37,8 @@ class APIv1:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
         return User(**data)
 
+    def get_beatmap(self, beatmap_id: int):
+        data = self._request(f"{self.url}/api/v1/beatmap/{beatmap_id}")
+        return Beatmap(**data)
+    
 instance = APIv1()
