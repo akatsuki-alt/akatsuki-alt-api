@@ -3,6 +3,15 @@ from datetime import datetime
 
 parse_date = datetime.fromisoformat
 
+def _parse_set(beatmapset):
+    return Beatmapset(**beatmapset)
+
+def _parse_beatmap(beatmap):
+    return Beatmap(**beatmap)
+
+def _parse_beatmaps(beatmaps):
+    return [Beatmap(**b) for b in beatmaps]
+
 class Model:
 
     _cast_func = {}
@@ -16,8 +25,8 @@ class Model:
         for k,v in self.__dict__.items():
             string += f"{k}: {v}\n"
         return string
-
 class User(Model):
+
     _cast_func = {'latest_activity': parse_date, 'registered_on': parse_date}
 
     id: int
@@ -35,10 +44,7 @@ class User(Model):
 
 class Beatmap(Model):
     
-    def __parse_set(beatmapset):
-        return Beatmapset(**beatmapset)
-
-    _cast_func = {'last_update': parse_date, 'last_db_update': parse_date, 'beatmapset': __parse_set}
+    _cast_func = {'last_update': parse_date, 'last_db_update': parse_date, 'beatmapset': _parse_set}
     
     id: int
     set_id: int
@@ -62,11 +68,8 @@ class Beatmap(Model):
     last_db_update: datetime
 
 class Beatmapset(Model):
-    
-    def __parse_beatmaps(beatmaps):
-        return [Beatmap(**b) for b in beatmaps]
 
-    _cast_func = {'last_updated': parse_date, 'ranked_date': parse_date, 'submitted_date': parse_date, 'beatmaps': __parse_beatmaps}
+    _cast_func = {'last_updated': parse_date, 'ranked_date': parse_date, 'submitted_date': parse_date, 'beatmaps': _parse_beatmaps}
     
     id: int
     artist: str
@@ -90,3 +93,38 @@ class Beatmapset(Model):
     submitted_date: datetime
 
     beatmaps: List[Beatmap]
+
+class Score(Model):
+    
+    _cast_func = {'date': parse_date, 'last_updated': parse_date, 'beatmap': _parse_beatmap}
+
+    id: int
+    user_id: int
+    server: str
+    beatmap_id: int
+    beatmap_md5: str
+    max_combo: int
+    full_combo: bool
+    count_300: int
+    count_100: int
+    count_50: int
+    count_miss: int
+    count_katu: int
+    count_geki: int
+    accuracy: float
+    rank: str
+    pp: float
+    score: int
+    mods: int
+    mods_relax: dict | None
+    mode: int
+    relax: int
+    completed: int
+    date: datetime
+    
+    hidden: bool
+    pp_system: str
+    last_updated: datetime
+    extra_metadata: dict
+
+    beatmap: Beatmap

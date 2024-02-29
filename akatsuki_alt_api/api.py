@@ -45,4 +45,8 @@ class APIv1:
         data = self._request(f"{self.url}/api/v1/beatmapset/{beatmapset_id}")
         return Beatmapset(**data) if data else None
     
+    def get_score(self, server: str, score_id: int) -> Score | None:
+        data = self._request(f"{self.url}/api/v1/score?server={server}&id={score_id}")
+        return Score(**data) if data else None
+
 instance = APIv1()
