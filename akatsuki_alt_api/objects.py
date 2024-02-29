@@ -11,6 +11,11 @@ class Model:
             if k in self._cast_func:
                 v = self._cast_func[k](v)
             setattr(self, k, v)
+    def __repr__(self) -> str:
+        string = f"{self.__class__.__name__}:\n"
+        for k,v in self.__dict__.items():
+            string += f"{k}: {v}\n"
+        return string
 
 class User(Model):
     _cast_func = {'latest_activity': parse_date, 'registered_on': parse_date}
