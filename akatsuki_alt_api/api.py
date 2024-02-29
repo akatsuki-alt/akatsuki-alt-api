@@ -1,3 +1,4 @@
+from .query import Query
 from .objects import *
 
 import urllib.request
@@ -44,9 +45,13 @@ class APIv1:
     def get_beatmapset(self, beatmapset_id: int) -> Beatmapset | None:
         data = self._request(f"{self.url}/api/v1/beatmapset/{beatmapset_id}")
         return Beatmapset(**data) if data else None
-    
+
     def get_score(self, server: str, score_id: int) -> Score | None:
         data = self._request(f"{self.url}/api/v1/score?server={server}&id={score_id}")
         return Score(**data) if data else None
+
+    def get_scores(self, query: str, page: int = 1, length: int = 100) -> Tuple[List[Score], int]:
+        data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}")
+        return [Score(**s) for s in data['scores']], data['count'] if data else [], 0
 
 instance = APIv1()
