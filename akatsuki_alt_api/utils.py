@@ -1,11 +1,12 @@
-from typing import Any, List, Self, Tuple
+from typing import Any, TypeVar, Generic, Self
+
+T = TypeVar('T')
 
 EQUALS = "{K}=={V}"
 LESS_THAN = "{K}<{V}"
 GREATER_THAN = "{K}>{V}"
 
-
-class Query:
+class Query(Generic[T]):
     
     def __init__(self, default_queries: str = ""):
         self.query = default_queries
@@ -28,22 +29,22 @@ class Query:
         self._add_to_query(GREATER_THAN.format(K=key, V=value))
         return self
 
-    def execute(self):
+    def execute(self) -> T:
         pass
 
-class PaginatedQuery(Query):
+class PaginatedQuery(Query[T]):
     
     def __init__(self, default_queries: str = ""):
-        self._page = 0
+        self._page: int = 0
         super().__init__(default_queries)
     
-    def execute(self) -> Any:
+    def execute(self) -> T:
         pass
     
-    def prev(self):
+    def prev(self) -> T:
         self._page = max(1, self._page - 1)
         return self.execute()
     
-    def next(self):
+    def next(self) -> T:
         self._page += 1
         return self.execute()

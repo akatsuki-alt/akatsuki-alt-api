@@ -9,13 +9,12 @@ import time
 
 class APIv1:
 
-    def __init__(self, url = "https://akatalt.lekuru.xyz"):
+    def __init__(self, url = "https://akatalt.lekuru.xyz", delay=60/120):
         self.url = url
         self._last_request = 0
-        self._delay = 60/120
+        self._delay = delay
     
     def _request(self, url: str) -> dict:
-        global _last_request
         delta = time.time() - self._last_request
         if delta < self._delay:
             time.sleep(self._delay - delta)
@@ -26,7 +25,7 @@ class APIv1:
                 'User-Agent': 'Akatsuki! Alt API Wrapper (python)'
             }
         )
-        _last_request = time.time()
+        self._last_request = time.time()
         try:
             with urllib.request.urlopen(req) as r:
                 return json.loads(r.read().decode('utf-8'))
@@ -34,7 +33,7 @@ class APIv1:
             if e.code != 404:
                 raise e
 
-    class ScoresQuery(PaginatedQuery):
+    class ScoresQuery(PaginatedQuery[List[Score]]):
         
         def __init__(self, _api, length: int = 100):
             self._length = length
@@ -49,12 +48,6 @@ class APIv1:
                 return [Score(**s) for s in data['scores']]
             else:
                 return []
-
-        def prev(self) -> List[Score]:
-            return super().prev()
-        
-        def next(self) -> List[Score]:
-            return super().next()
 
     def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
