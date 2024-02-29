@@ -1,4 +1,4 @@
-from .query import Query
+from .utils import PaginatedQuery
 from .objects import *
 
 import urllib.request
@@ -34,6 +34,28 @@ class APIv1:
             if e.code != 404:
                 raise e
 
+    class ScoresQuery(PaginatedQuery):
+        
+        def __init__(self, _api, length: int = 100):
+            self._length = length
+            self.count = 0
+            self._api = _api
+            super().__init__()
+
+        def execute(self) -> List[Score]:
+            data = self._api._request(f"{self._api.url}/api/v1/score/search?query={self.query}&page={self._page}&length={self._length}")
+            if data:
+                self.count = data['count']
+                return [Score(**s) for s in data['scores']]
+            else:
+                return []
+
+        def prev(self) -> List[Score]:
+            return super().prev()
+        
+        def next(self) -> List[Score]:
+            return super().next()
+
     def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
         return User(**data) if data else None
@@ -53,5 +75,8 @@ class APIv1:
     def get_scores(self, query: str, page: int = 1, length: int = 100) -> Tuple[List[Score], int]:
         data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}")
         return [Score(**s) for s in data['scores']], data['count'] if data else [], 0
+
+    def query_scores(self, length: int = 100) -> ScoresQuery:
+        return self.ScoresQuery(self, length)
 
 instance = APIv1()
