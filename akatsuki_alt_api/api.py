@@ -33,17 +33,16 @@ class APIv1:
             if e.code != 404:
                 raise e
 
-    def get_user(self, server: str, id: int):
+    def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
-        return User(**data)
+        return User(**data) if data else None
 
-    def get_beatmap(self, beatmap_id: int):
+    def get_beatmap(self, beatmap_id: int) -> Beatmap | None:
         data = self._request(f"{self.url}/api/v1/beatmap/{beatmap_id}")
-        return Beatmap(**data)
+        return Beatmap(**data) if data else None
     
-    def get_beatmapset(self, beatmapset_id: int):
+    def get_beatmapset(self, beatmapset_id: int) -> Beatmapset | None:
         data = self._request(f"{self.url}/api/v1/beatmapset/{beatmapset_id}")
-        if data:
-            return Beatmapset(**data)
+        return Beatmapset(**data) if data else None
     
 instance = APIv1()
