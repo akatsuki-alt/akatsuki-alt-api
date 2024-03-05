@@ -1,5 +1,6 @@
 from .utils import PaginatedQuery
 from .objects import *
+from .enums import *
 
 import urllib.request
 import urllib.error
@@ -52,6 +53,10 @@ class APIv1:
     def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
         return User(**data) if data else None
+
+    def get_user_list(self, server: str, page: int = 1, length: int = 100, query: str = "", sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True) -> Tuple[List[User], int]:
+        data = self._request(f"{self.url}/api/v1/user/list?server={server}&query={query}&page={page}&length={length}&sort={sort}&desc={desc}")
+        return [User(**u) for u in data['users']], data['count']
 
     def get_beatmap(self, beatmap_id: int) -> Beatmap | None:
         data = self._request(f"{self.url}/api/v1/beatmap/{beatmap_id}")
