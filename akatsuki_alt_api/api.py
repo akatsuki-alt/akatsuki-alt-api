@@ -57,6 +57,30 @@ class APIv1:
             self._desc = desc
             self._page = 1
 
+    class UsersQuery(PaginatedQuery[List[User]]):
+        
+        def __init__(self, _api, server: str, query: str = "", length: int = 100, sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True):
+            self._length = length
+            self.count = 0
+            self._api = _api
+            self._sort = sort
+            self._desc = desc
+            self.server = server
+            super().__init__(query)
+
+        def execute(self) -> List[User]:
+            data = self._api._request(f"{self._api.url}/api/v1/user/list?server={self.server}&query={self.query}&page={self._page}&length={self._length}&sort={self._sort}&desc={self._desc}")
+            if data:
+                self.count = data['count']
+                return [User(**s) for s in data['users']]
+            else:
+                return []
+
+        def set_sort(self, sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True):
+            self._sort = sort
+            self._desc = desc
+            self._page = 1
+
     def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
         return User(**data) if data else None
@@ -81,7 +105,10 @@ class APIv1:
         data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}&sort={sort}&desc={desc}")
         return [Score(**s) for s in data['scores']], data['count'] if data else [], 0
 
-    def query_scores(self, query: str = "", length: int = 100, sort: str = ScoreSort.PP, desc: bool = True) -> ScoresQuery:
+    def query_scores(self, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True) -> ScoresQuery:
         return self.ScoresQuery(self, query, length, sort, desc)
+
+    def query_users(self, server: str, query: str = "", length: int = 100, sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True) -> UsersQuery:
+        return self.UsersQuery(self, server, query, length, sort, desc)
 
 instance = APIv1()
