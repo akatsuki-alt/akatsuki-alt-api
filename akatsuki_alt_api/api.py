@@ -36,19 +36,26 @@ class APIv1:
 
     class ScoresQuery(PaginatedQuery[List[Score]]):
         
-        def __init__(self, _api, length: int = 100):
+        def __init__(self, _api, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True):
             self._length = length
             self.count = 0
             self._api = _api
-            super().__init__()
+            self._sort = sort
+            self._desc = desc
+            super().__init__(query)
 
         def execute(self) -> List[Score]:
-            data = self._api._request(f"{self._api.url}/api/v1/score/search?query={self.query}&page={self._page}&length={self._length}")
+            data = self._api._request(f"{self._api.url}/api/v1/score/search?query={self.query}&page={self._page}&length={self._length}&sort={self._sort}&desc={self._desc}")
             if data:
                 self.count = data['count']
                 return [Score(**s) for s in data['scores']]
             else:
                 return []
+
+        def set_sort(self, sort: ScoreSort = ScoreSort.PP, desc: bool = True):
+            self._sort = sort
+            self._desc = desc
+            self._page = 1
 
     def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
@@ -70,11 +77,11 @@ class APIv1:
         data = self._request(f"{self.url}/api/v1/score?server={server}&id={score_id}")
         return Score(**data) if data else None
 
-    def get_scores(self, query: str, page: int = 1, length: int = 100) -> Tuple[List[Score], int]:
-        data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}")
+    def get_scores(self, query: str, page: int = 1, length: int = 100, sort: str = ScoreSort.PP, desc: bool = True) -> Tuple[List[Score], int]:
+        data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}&sort={sort}&desc={desc}")
         return [Score(**s) for s in data['scores']], data['count'] if data else [], 0
 
-    def query_scores(self, length: int = 100) -> ScoresQuery:
-        return self.ScoresQuery(self, length)
+    def query_scores(self, query: str = "", length: int = 100, sort: str = ScoreSort.PP, desc: bool = True) -> ScoresQuery:
+        return self.ScoresQuery(self, query, length, sort, desc)
 
 instance = APIv1()
