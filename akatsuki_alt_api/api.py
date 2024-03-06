@@ -2,6 +2,8 @@ from .utils import PaginatedQuery
 from .objects import *
 from .enums import *
 
+from datetime import date
+
 import urllib.request
 import urllib.error
 import json
@@ -104,6 +106,13 @@ class APIv1:
     def get_scores(self, query: str, page: int = 1, length: int = 100, sort: str = ScoreSort.PP, desc: bool = True) -> Tuple[List[Score], int]:
         data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}&sort={sort}&desc={desc}")
         return [Score(**s) for s in data['scores']], data['count'] if data else [], 0
+
+    def lookup_first_place(self, server: str, beatmap_id: int, mode: int = 0, relax: int = 0, date: date = None) -> FirstPlace | None:
+        url = f"{self.url}/api/v1/user/first_places/lookup?server={server}&beatmap_id={beatmap_id}&mode={mode}&relax={relax}"
+        if date:
+            url += f"&date={date}"
+        data = self._request(url)
+        return FirstPlace(**data) if data else None
 
     def query_scores(self, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True) -> ScoresQuery:
         return self.ScoresQuery(self, query, length, sort, desc)

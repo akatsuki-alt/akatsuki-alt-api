@@ -12,6 +12,9 @@ def _parse_beatmap(beatmap):
 def _parse_beatmaps(beatmaps):
     return [Beatmap(**b) for b in beatmaps]
 
+def _parse_score(score):
+    return Score(**score)
+
 class Model:
 
     _cast_func = {}
@@ -128,3 +131,17 @@ class Score(Model):
     extra_metadata: dict
 
     beatmap: Beatmap
+
+class FirstPlace(Model):
+    
+    _cast_func = {'score': _parse_score, 'date': parse_date}
+    
+    server: str
+    beatmap_id: int
+    user_id: int
+    id: int
+    mode: int
+    relax: int
+    date: datetime
+    score: Score
+    
