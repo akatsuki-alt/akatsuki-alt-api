@@ -1,3 +1,4 @@
+from .enums import ScoreSort
 from .utils import PaginatedQuery
 from .objects import *
 from .enums import *
@@ -58,6 +59,26 @@ class APIv1:
             self._sort = sort
             self._desc = desc
             self._page = 1
+
+    class FirstPlacesQuery(ScoresQuery):
+        
+        def __init__(self, _api, server: str, user_id: int, mode = 0, relax = 0, date: date = None, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True):
+            self._server = server
+            self._user_id = user_id
+            self._date = date
+            self._mode = mode
+            self._relax = relax
+            super().__init__(_api, query, length, sort, desc)
+        
+        def execute(self) -> List[Score]:
+            url = f"{self._api.url}/api/v1/user/first_places?server={self._server}&id={self._user_id}&mode={self._mode}&relax={self._relax}&page={self._page}&length={self._length}&query={self.query}&sort={self._sort}&desc={self._desc}"
+            if self._date:
+                url += f"&date={self._date}"
+            data = self._api._request(url)
+            if data or data['count']:
+                self.count = data['count']
+                return [Score(**score) for score in data['scores']]
+            return []
 
     class UsersQuery(PaginatedQuery[List[User]]):
         
@@ -134,5 +155,8 @@ class APIv1:
 
     def query_users(self, server: str, query: str = "", length: int = 100, sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True) -> UsersQuery:
         return self.UsersQuery(self, server, query, length, sort, desc)
+
+    def query_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True, date: date = None) -> FirstPlacesQuery:
+        return self.FirstPlacesQuery(self, server, user_id, mode, relax, date, query, length, sort, desc)
 
 instance = APIv1()
