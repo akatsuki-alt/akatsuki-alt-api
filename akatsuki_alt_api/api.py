@@ -114,6 +114,12 @@ class APIv1:
         data = self._request(url)
         return FirstPlace(**data) if data else None
 
+    def get_first_place_history(self, server: str, beatmap_id: int, mode: int = 0, relax: int = 0, page: int = 1, length: int = 100) -> Tuple[List[FirstPlace], int]:
+        data = self._request(f"{self.url}/api/v1/user/first_places/history/?server={server}&beatmap_id={beatmap_id}&mode={mode}&relax={relax}&page={page}&length={length}")
+        if data:
+            return [FirstPlace(**first_place) for first_place in data['history']], data['count']
+        return [], 0
+
     def query_scores(self, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True) -> ScoresQuery:
         return self.ScoresQuery(self, query, length, sort, desc)
 
