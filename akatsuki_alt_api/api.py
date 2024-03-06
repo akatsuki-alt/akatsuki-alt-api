@@ -111,7 +111,6 @@ class APIv1:
         url = f"{self.url}/api/v1/user/first_places?server={server}&id={user_id}&mode={mode}&relax={relax}&page={page}&length={length}&query={query}&sort={sort}&desc={desc}"
         if date:
             url += f"&date={date}"
-        print(url)
         data = self._request(url)
         if data or data['count']:
             return [Score(**score) for score in data['scores']], data['count']
