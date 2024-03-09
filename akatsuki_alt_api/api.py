@@ -83,7 +83,7 @@ class APIv1:
 
         def set_type(self, type: FirstPlacesType = FirstPlacesType.ALL):
             self._type = type
-            self._page = 1
+            self._page = 0
 
     class UsersQuery(PaginatedQuery[List[User]]):
         
