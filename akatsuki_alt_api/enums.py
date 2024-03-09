@@ -20,3 +20,9 @@ class ScoreSort(StrEnum):
     SCORE = "score"
     MODS = "mods"
     DATE = "date"
+
+class FirstPlacesType(StrEnum):
+    
+    ALL = "all"
+    NEW = "new"
+    LOST = "lost"

@@ -62,16 +62,17 @@ class APIv1:
 
     class FirstPlacesQuery(ScoresQuery):
         
-        def __init__(self, _api, server: str, user_id: int, mode = 0, relax = 0, date: date = None, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True):
+        def __init__(self, _api, server: str, user_id: int, mode = 0, relax = 0, date: date = None, query: str = "", length: int = 100, type: FirstPlacesType = FirstPlacesType.ALL, sort: ScoreSort = ScoreSort.PP, desc: bool = True):
             self._server = server
             self._user_id = user_id
             self._date = date
             self._mode = mode
             self._relax = relax
+            self._type = type
             super().__init__(_api, query, length, sort, desc)
         
         def execute(self) -> List[Score]:
-            url = f"{self._api.url}/api/v1/user/first_places?server={self._server}&id={self._user_id}&mode={self._mode}&relax={self._relax}&page={self._page}&length={self._length}&query={self.query}&sort={self._sort}&desc={self._desc}"
+            url = f"{self._api.url}/api/v1/user/first_places?server={self._server}&id={self._user_id}&mode={self._mode}&relax={self._relax}&page={self._page}&length={self._length}&query={self.query}&sort={self._sort}&desc={self._desc}&type={self._type}"
             if self._date:
                 url += f"&date={self._date}"
             data = self._api._request(url)
@@ -79,6 +80,10 @@ class APIv1:
                 self.count = data['count']
                 return [Score(**score) for score in data['scores']]
             return []
+
+        def set_type(self, type: FirstPlacesType = FirstPlacesType.ALL):
+            self._type = type
+            self._page = 1
 
     class UsersQuery(PaginatedQuery[List[User]]):
         
@@ -128,8 +133,8 @@ class APIv1:
         data = self._request(f"{self.url}/api/v1/score/search?query={query}&page={page}&length={length}&sort={sort}&desc={desc}")
         return [Score(**s) for s in data['scores']], data['count'] if data else [], 0
 
-    def get_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, page: int = 1, length: int = 100, date: date = None, query: str = "", sort: str = ScoreSort.PP, desc: bool = True) -> Tuple[List[Score], int]:
-        url = f"{self.url}/api/v1/user/first_places?server={server}&id={user_id}&mode={mode}&relax={relax}&page={page}&length={length}&query={query}&sort={sort}&desc={desc}"
+    def get_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, page: int = 1, length: int = 100, date: date = None, query: str = "", type: FirstPlacesType = FirstPlacesType.ALL, sort: str = ScoreSort.PP, desc: bool = True) -> Tuple[List[Score], int]:
+        url = f"{self.url}/api/v1/user/first_places?server={server}&id={user_id}&mode={mode}&relax={relax}&page={page}&length={length}&query={query}&sort={sort}&desc={desc}&type={type}"
         if date:
             url += f"&date={date}"
         data = self._request(url)
@@ -156,7 +161,7 @@ class APIv1:
     def query_users(self, server: str, query: str = "", length: int = 100, sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True) -> UsersQuery:
         return self.UsersQuery(self, server, query, length, sort, desc)
 
-    def query_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, query: str = "", length: int = 100, sort: ScoreSort = ScoreSort.PP, desc: bool = True, date: date = None) -> FirstPlacesQuery:
-        return self.FirstPlacesQuery(self, server, user_id, mode, relax, date, query, length, sort, desc)
+    def query_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, query: str = "", length: int = 100, type: FirstPlacesType = FirstPlacesType.ALL, sort: ScoreSort = ScoreSort.PP, desc: bool = True, date: date = None) -> FirstPlacesQuery:
+        return self.FirstPlacesQuery(self, server, user_id, mode, relax, date, query, length, type, sort, desc)
 
 instance = APIv1()
