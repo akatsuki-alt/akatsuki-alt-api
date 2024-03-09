@@ -58,7 +58,7 @@ class APIv1:
         def set_sort(self, sort: ScoreSort = ScoreSort.PP, desc: bool = True):
             self._sort = sort
             self._desc = desc
-            self._page = 1
+            self._page = 0
 
     class FirstPlacesQuery(ScoresQuery):
         
