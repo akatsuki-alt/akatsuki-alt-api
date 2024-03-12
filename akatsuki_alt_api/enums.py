@@ -21,6 +21,16 @@ class ScoreSort(StrEnum):
     MODS = "mods"
     DATE = "date"
 
+class BeatmapSort(StrEnum):
+    
+    BEATMAP_ID = "id"
+    BEATMAPSET_ID = "set_id"
+    MAX_COMBO = "max_combo"
+    BPM = "bpm"
+    TOTAL_LENGTH = "total_length"
+    HIT_LENGTH = "hit_length"
+    DIFFICULTY = "difficulty"
+
 class FirstPlacesType(StrEnum):
     
     ALL = "all"

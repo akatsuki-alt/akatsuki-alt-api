@@ -125,6 +125,10 @@ class APIv1:
         data = self._request(f"{self.url}/api/v1/beatmapset/{beatmapset_id}")
         return Beatmapset(**data) if data else None
 
+    def get_beatmaps(self, query: str, page: int = 1, length: int = 100, sort: BeatmapSort = BeatmapSort.BEATMAP_ID, desc: bool = True) -> Tuple[List[Beatmap], int]:
+        data = self._request(f"{self.url}/api/v1/beatmap/search?query={query}&page={page}&length={length}&sort={sort}&desc={desc}")
+        return [Beatmap(**b) for b in data['beatmaps']], data['count']        
+
     def get_score(self, server: str, score_id: int) -> Score | None:
         data = self._request(f"{self.url}/api/v1/score?server={server}&id={score_id}")
         return Score(**data) if data else None
@@ -164,4 +168,4 @@ class APIv1:
     def query_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, query: str = "", length: int = 100, type: FirstPlacesType = FirstPlacesType.ALL, sort: ScoreSort = ScoreSort.PP, desc: bool = True, date: date = None) -> FirstPlacesQuery:
         return self.FirstPlacesQuery(self, server, user_id, mode, relax, date, query, length, type, sort, desc)
 
-instance = APIv1()
+instance = APIv1(url="http://0.0.0.0:4269")
