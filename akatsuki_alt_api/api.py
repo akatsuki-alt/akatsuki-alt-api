@@ -107,7 +107,31 @@ class APIv1:
         def set_sort(self, sort: UserSort = UserSort.LATEST_ACTIVITY, desc: bool = True):
             self._sort = sort
             self._desc = desc
-            self._page = 1
+            self._page = 0
+
+    class BeatmapsQuery(PaginatedQuery[List[Beatmap]]):
+        
+        def __init__(self, _api, query: str = "", length: int = 100, sort: BeatmapSort = BeatmapSort.BEATMAP_ID, desc: bool = True):
+            self._length = length
+            self.count = 0
+            self._api = _api
+            self._sort = sort
+            self._desc = desc
+            super().__init__(query)
+
+        def execute(self) -> List[Beatmap]:
+            print(f"{self._api.url}/api/v1/beatmap/search?query={self.query}&page={self._page}&length={self._length}&sort={self._sort}&desc={self._desc}")
+            data = self._api._request(f"{self._api.url}/api/v1/beatmap/search?query={self.query}&page={self._page}&length={self._length}&sort={self._sort}&desc={self._desc}")
+            if data:
+                self.count = data['count']
+                return [Beatmap(**b) for b in data['beatmaps']]
+            else:
+                return []
+
+        def set_sort(self, sort: BeatmapSort = BeatmapSort.BEATMAP_ID, desc: bool = True):
+            self._sort = sort
+            self._desc = desc
+            self._page = 0
 
     def get_user(self, server: str, id: int) -> User:
         data = self._request(f"{self.url}/api/v1/user?server={server}&id={id}")
@@ -168,4 +192,7 @@ class APIv1:
     def query_user_first_places(self, server: str, user_id: int, mode: int = 0, relax: int = 0, query: str = "", length: int = 100, type: FirstPlacesType = FirstPlacesType.ALL, sort: ScoreSort = ScoreSort.PP, desc: bool = True, date: date = None) -> FirstPlacesQuery:
         return self.FirstPlacesQuery(self, server, user_id, mode, relax, date, query, length, type, sort, desc)
 
-instance = APIv1(url="http://0.0.0.0:4269")
+    def query_beatmaps(self, query: str = "", length: int = 100, sort: str = "", desc: bool = True) -> BeatmapsQuery:
+        return self.BeatmapsQuery(self, query, length, sort, desc)
+
+instance = APIv1()
