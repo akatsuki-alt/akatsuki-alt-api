@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from datetime import datetime
 
 parse_date = datetime.fromisoformat
@@ -20,7 +20,7 @@ class Model:
     _cast_func = {}
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
-            if k in self._cast_func:
+            if k in self._cast_func and v:
                 v = self._cast_func[k](v)
             setattr(self, k, v)
     def __repr__(self) -> str:
@@ -69,6 +69,7 @@ class Beatmap(Model):
     count_spinners: int
     status: Dict[str, int]
     last_db_update: datetime
+    beatmapset: Optional["Beatmapset"] | None
 
 class Beatmapset(Model):
 
